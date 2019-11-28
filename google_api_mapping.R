@@ -3,8 +3,8 @@ install.packages("devtools")
 devtools::install_github('dkahle/ggmap', force  = T)
 library(ggmap)
 
-register_google(key = '너의 API')
-get_map(location = '서울',
+register_google(key = '너의 API')   #####  구글 API 를 다운 받아야 된다.
+get_map(location = '서울',          ########## 1년은 무료고 카드번호를 적어도 돈이 자동 결제 될 일은 없다
         zoom = 14,
         maptype = 'roadmap',
         source = 'google') %>% 
@@ -15,7 +15,7 @@ getwd()
 setwd("c:/r_class")
 
 
-data = read.csv('starbucks_loc_calc')
+data = read.csv('starbucks_loc_calc')   ############ 스타벅스 위도 경도 
 data
 nrow(data)
 center <- c(mean(x = data$lng), mean(x = data$lat))
@@ -25,7 +25,7 @@ library(tidyverse)
 #install.packages("showtext")
 library(showtext)
 
-font_add_google("Nanum Gothic", "nanumgothic")
+font_add_google("Nanum Gothic", "nanumgothic")            ##############   한글이라 폰트를 바꾼다.
 qmap(location = center,
      zoom = 11,
      maptype = 'roadmap',
