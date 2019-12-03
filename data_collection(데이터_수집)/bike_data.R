@@ -1,5 +1,5 @@
-
-key <- '70726a5844686d633734585747534a'
+##### url 로 부터 인증키부터 구해야 한다.
+key <- 'get your api key from this url below'
 URL <- 'http://openapi.seoul.go.kr:8088'
 
 

@@ -1,5 +1,6 @@
 
-key <- 'LXprn7JlCqsTMmS0nFPJ%2B7jFuunTiwvNBQWm3zmvzIop6%2BzzKzRukiZpic8Sj3%2Bpyd2Q1LSag1NE0g4FyysRmA%3D%3D'
+##### url 로 부터 인증키 구하기
+key <- 'get an key from the url'
 URL <- 'http://apis.data.go.kr/1192000/openapi/service/ManageExpNationItemService/getExpNationItemList'
 
 
