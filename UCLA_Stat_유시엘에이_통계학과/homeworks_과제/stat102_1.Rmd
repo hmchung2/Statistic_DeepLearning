@@ -1,0 +1,326 @@
+---
+title: '2-dimensional Data Structures; Subsetting Intro'
+subtitle: "Stats 102A"
+author: "Hadley Wickham, adapted by Miles Chen"
+date: 'Week 1 Friday'
+output: ioslides_presentation
+footer: Copyright Miles Chen. Do not distribute or post without permission.
+widescreen: TRUE
+---
+
+## Matrices and arrays {#matrices-and-arrays}
+
+Adding a `dim()` attribute to an atomic vector allows it to behave like a multi-dimensional __array__. A special case of the array is the __matrix__, which has two dimensions. Matrices are used commonly as part of the mathematical machinery of statistics. Arrays are much rarer, but worth being aware of.
+
+Matrices and arrays are created with `matrix()` and `array()`, or by using the assignment form of `dim()`:
+
+```{r}
+# Two scalar arguments to specify rows and columns
+a <- matrix(1:6, ncol = 3, nrow = 2)
+a
+```
+
+## 
+```{r}
+# One vector argument to describe all dimensions
+b <- array(1:12, c(2, 3, 2))
+b
+```
+
+## 
+```{r}
+# You can also modify an object in place by setting dim()
+c <- 1:6
+dim(c) <- c(3, 2)
+c
+dim(c) <- c(2, 3)
+c
+```
+
+## 
+* `length()` generalizes to `nrow()` and `ncol()` for matrices, and `dim()`
+  for arrays. 
+
+* `names()` generalizes to `rownames()` and `colnames()` for matrices, and
+  `dimnames()`, a list of character vectors, for arrays.
+```{r}
+a
+rownames(a) <- c("A", "B")
+colnames(a) <- c("a", "b", "c")
+a
+
+
+```
+
+## 
+```{r}
+length(a)
+nrow(a)
+ncol(a)
+```
+
+##
+```{r}
+b
+length(b)
+```
+
+##
+```{r}
+dim(b)
+dimnames(b) <- list(c("one", "two"), c("a", "b", "c"), c("A", "B"))
+b
+```
+
+## Combining matricies and arrays 
+
+`c()` generalizes to `cbind()` and `rbind()` for matrices. You can transpose a matrix with `t()`. You can test if an object is a matrix or array using `is.matrix()` and `is.array()`, or by looking at `dim()`. `as.matrix()` and `as.array()` turn a vector into a matrix or array.
+
+```{r}
+cbind(a, a)
+rbind(a, a)
+```
+
+
+## 1 Dimensional Marices and Arrays 
+Vectors are not the only 1-dimensional data structure. You can have matrices with a single row or single column, or arrays with a single dimension. They may print similarly, but will behave differently. The differences aren't too important, but it's useful to know they exist in case you get strange output from a function (`tapply()` is a frequent offender). As always, use `str()` to reveal the differences.
+
+## 
+
+```{r}
+f <- 1:3  # 1d vector
+f
+str(f)
+attributes(f)
+is.atomic(f)
+```
+
+##
+
+```{r}
+g <- matrix(1:3, ncol = 1) # column vector
+g
+str(g)
+attributes(g)
+is.atomic(g)
+```
+
+##
+
+```{r}
+h <- matrix(1:3, nrow = 1)  # row vector
+h
+str(h)
+attributes(h)
+```
+
+##
+```{r}
+i <- array(1:3, 3) # "array" vector
+i
+str(i)
+attributes(i)
+```
+
+## Data frames
+
+A data frame is the most common way of storing data in R, and if used systematically makes data analysis easier. Under the hood, a data frame is a list of equal-length vectors. This makes it a 2-dimensional structure, so it shares properties of both the matrix and the list. This means that a data frame has `names()`, `colnames()`, and `rownames()`, although `names()` and `colnames()` are the same thing. The `length()` of a data frame is the length of the underlying list and so is the same as `ncol()`; `nrow()` gives the number of rows.
+
+You can subset a data frame like a 1d structure (where it behaves like a list), or a 2d structure (where it behaves like a matrix).
+
+## Creation
+
+You create a data frame using `data.frame()`, which takes named vectors as input:
+
+```{r}
+df <- data.frame(x = 1:3, y = c("a", "b", "c"))
+df
+str(df)
+```
+
+## 
+
+Beware `data.frame()`'s default behavior which turns strings into factors. Use `stringAsFactors = FALSE` to suppress this behavior:
+
+```{r}
+df <- data.frame(
+  x = 1:3,
+  y = c("a", "b", "c"),
+  stringsAsFactors = FALSE)
+str(df)
+```
+
+## Testing and coercion
+
+A `data.frame` is stored as a list inside R, which is reflected in `typeof()`. To check if an object is a data frame, use `class()` or test explicitly with `is.data.frame()`:
+
+```{r}
+typeof(df)
+class(df)
+is.data.frame(df)
+```
+
+## 
+
+You can coerce an object to a data frame with `as.data.frame()`:
+
+* A vector will create a one-column data frame.
+
+* A list will create one column for each element; it's an error if they're 
+  not all the same length.
+  
+* A matrix will create a data frame with the same number of columns and rows as the matrix.
+
+## Combining data frames
+
+You can combine data frames using `cbind()` and `rbind()`:
+
+```{r}
+cbind(df, data.frame(z = 3:1))
+rbind(df, data.frame(x = 10, y = "z"))
+```
+
+## 
+
+When combining column-wise (cbind), the number of rows must match, but row names are ignored. 
+
+When combining row-wise (rbind), both the number and names of columns must match. 
+
+It's a common mistake to try and create a data frame by `cbind()`ing vectors together. This doesn't work because `cbind()` will create a matrix first (which requires all elements to have the same type), unless one of the arguments is already a data frame. Instead use `data.frame()` directly:
+
+##
+```{r}
+bad <- data.frame(cbind(a = 1:2, b = c("a", "b")))
+str(bad)
+good <- data.frame(a = 1:2, b = c("a", "b"),
+  stringsAsFactors = FALSE)
+str(good)
+```
+
+## tbl_df in dplyr
+
+The package `dplyr` has a structure known as `tbl_df`, which is identical to a data frame, except in the way it displays. If you've ever typed the name of a large data frame, you might have been frustrated that R tries to print the ENTIRE data frame, even if its thousands of rows.
+
+'Wrapping' a data frame with tbl_df prevents this annoying habit, but retains the functionality of a data frame.
+
+# Subsetting
+
+## Subsetting
+
+R's subsetting operators are powerful and fast.
+
+Subsetting is a natural complement to `str()`. `str()` shows you the structure of any object, and subsetting allows you to pull out the pieces that you're interested in.
+
+## Atomic vectors
+
+Let's explore the different types of subsetting with a simple vector, `x`.
+
+```{r}
+x <- c(2.1, 4.2, 3.3, 5.4)
+```
+
+We start with a simple vector `x`, that has been crafted so that the number after the decimal point gives the original position in the vector.
+
+There are five things that you can use to subset a vector: 
+
+- Positive Integers
+- Negative Integers
+- Logical Vectors
+- Character Vectors
+
+## Positive Integers
+
+__Positive integers__ return elements at the specified positions: 
+
+```{r}
+x[c(3, 1)]
+
+order(x)
+
+x[order(x)]
+```
+
+##
+```{r}
+# Duplicated indices yield duplicated values
+x[c(1, 1)]
+
+# Real numbers are silently truncated to integers
+x[c(2.1, 2.9)]
+```
+
+## Negative Integers
+
+__Negative integers__ omit elements at the specified positions:
+
+```{r}
+x[-c(3, 1)]
+```
+
+You can't mix positive and negative integers in a single subset:
+
+```{r, error = TRUE}
+x[c(-1, 2)]
+```
+
+## Logical vectors
+
+__Logical vectors__ select elements where the corresponding logical 
+value is `TRUE`. This is probably the most useful type of subsetting
+because you write the expression that creates the logical vector:
+
+```{r}
+x[c(TRUE, TRUE, FALSE, FALSE)]
+x[x > 3]
+```
+
+##
+If the logical vector is shorter than the vector being subsetted, it 
+will be _recycled_ to be the same length.
+
+```{r}
+x[c(TRUE, FALSE)]
+# Equivalent to
+x[c(TRUE, FALSE, TRUE, FALSE)]
+```
+
+A missing value in the index always yields a missing value in the output:
+
+```{r}
+x[c(TRUE, TRUE, NA, FALSE)]
+```
+
+## Special Cases
+
+__Nothing__ returns the original vector. This is not useful for vectors but is very useful for matrices, data frames, and arrays. It can also be useful in conjunction with assignment.
+
+```{r}
+x[]
+```
+
+__Zero__ returns a zero-length vector. This is not something you usually do on purpose, but it can be helpful for generating test data.
+
+```{r}
+x[0]
+```
+
+## Character vectors 
+
+If the vector is named, you can also use __Character vectors__ to return elements with matching names.
+
+```{r}
+(y <- setNames(x, letters[1:4]))
+y[c("d", "c", "a")]
+```
+
+##
+```{r}
+# Like integer indices, you can repeat indices
+y[c("a", "a", "a")]
+
+# When subsetting with [ names are always matched exactly
+z <- c(abc = 1, def = 2)
+z[c("a", "d")]
+```
+
+
