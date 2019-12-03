@@ -1,0 +1,847 @@
+---
+title: "Project"
+author: "Daniel Chung"
+date: "May 3, 2019"
+output: pdf_document
+---
+#from project 1
+```{r}
+#1b
+
+a1 = read.csv("industry_one_four.csv")
+a2 = read.csv("industry_five.csv")
+a = cbind(a1,a2[-c(1,2)])
+dim(a)
+
+r <- (a[-1,3:ncol(a)]-a[-nrow(a),3:ncol(a)])/a[-nrow(a),3:ncol(a)]
+head(r)
+head(a[-1,])
+
+a3 = a2
+a4 = a1
+a5 = cbind(a3,a4[-c(1,2)])
+r2 <- (a5[-1,3:ncol(a5)]-a5[-nrow(a5),3:ncol(a5)])/a5[-nrow(a5),3:ncol(a5)]
+
+```
+
+
+```{r,include=FALSE}
+#1c
+assetmean = colMeans(r)
+assetmean
+stdv = apply(r, 2, sd, na.rm = TRUE)
+stdv
+sigma = cov(r)
+head(sigma)
+
+```
+
+
+```{r,include=FALSE}
+#1d
+plot(stdv,assetmean, xlab = "Risk(standard deviation", ylab = "Expected Return") ;text(stdv,assetmean, c(names(assetmean)), cex = 0.8)
+
+```
+
+
+```{r,include=FALSE}
+#1e
+x = matrix(rep(1/30,30))
+x
+assetmean1 = colMeans(r[-1])
+stdv1 = apply(r[-1], 2, sd, na.rm = TRUE)
+sigma1 = cov(r[-1])
+sigmainv1 = solve(sigma1)
+
+#Finding return of allocation
+alloreturn = t(x)%*%assetmean1
+alloreturn
+
+#Finding risk of alloaction 
+allorisk = sqrt(t(x) %*% sigma1 %*% x)
+allorisk
+
+#plot
+plot(stdv,assetmean, xlab = "Risk(standard deviation", ylab = "Expected Return",asp = 1) ;text(stdv,assetmean, c(names(assetmean)), cex = 0.8); points(allorisk,alloreturn, col = "red");text(allorisk,alloreturn, "allocation", pos =4, cex = 0.8, col ="red")
+
+```
+
+
+```{r,include=FALSE}
+#1f
+sigmainv = solve(sigma)
+ones = matrix(rep(1,30))
+#Finding weights for the minimum risk
+weights = (sigmainv1 %*% ones) / as.numeric(t(ones) %*% sigmainv1 %*% ones)
+weights
+#Finding returns for the minmum risk
+
+minrisky = t(weights) %*% assetmean1
+minrisky
+
+#Finding sd for the minimum risk
+minriskx = sqrt(t(weights) %*% sigma1 %*% weights)
+minriskx
+#plot
+plot(stdv,assetmean, xlab = "Risk(standard deviation", ylab = "Expected Return",asp = 1.4) ;text(stdv,assetmean, c(names(assetmean)), cex = 0.8); points(allorisk,alloreturn, col = "red");text(allorisk,alloreturn, "allocation", pos =4, cex = 0.8, col ="red");points(minriskx, minrisky, col = "blue"); text(minriskx,minrisky, "minrisk", pos =4, cex = 0.8, col = "blue")
+```
+
+
+```{r,include=FALSE}
+#1g1
+B = t(assetmean1) %*% sigmainv1 %*% assetmean1
+A = t(assetmean1) %*% sigmainv1 %*% ones
+C = t(ones) %*% sigmainv1 %*% ones
+D = B*C - A^2
+
+
+sdeff <- seq(sqrt(1/C),1, by = 0.00001)
+options(warn = -1)
+y1 <- (A + sqrt(D*(C*sdeff^2 - 1)))*(1/C)
+y2 <- (A - sqrt(D*(C*sdeff^2 - 1)))*(1/C)
+options(warn = 0)
+
+plot(sqrt(1/C),A/C,xlab = "Risk(standard deviation", ylab = "Expected Return",xlim = c(0, 7*sqrt(1/C)),ylim = c(-5*A/C,5*A/C));points(sdeff, y1, type = "l");points(sdeff, y2, type = "l");text(stdv,assetmean, c(names(assetmean)), cex = 0.8)
+
+
+```
+
+
+```{r,include=FALSE}
+#1g2
+#Let say two rf values are 0.05 and 0.01
+rfa = 0.05
+rfb = 0.01
+ra =  (assetmean1 - rfa)
+rb =  (assetmean1 - rfb)
+za = t(sigmainv1) %*% ra
+zb = t(sigmainv1) %*% rb
+xa = za / sum(za)
+xb = zb / sum(zb)
+return_a = t(xa) %*% assetmean1
+return_b = t(xb) %*% assetmean1
+variance_a = t(xa) %*% sigma1 %*% xa
+variance_b = t(xb) %*% sigma1 %*% xb
+cov_ab = t(xa) %*% sigma1 %*% xb
+return_p <- rep(0,100000)
+sd_p <- rep(0,100000)
+j <- 0 
+i <- 0 
+for(a in seq(-0.5,1,0.001)){
+for(b in seq(-0.5,1,0.001)){
+if(a+b == 1){
+j= j+1
+return_p[j] = a*return_a + b*return_b
+sd_p[j] = sqrt((a^2)*variance_a+(b^2)*variance_b +2*a*b*cov_ab)
+}  
+}
+}
+plot(0,0,xlab = "Risk(standard deviation", ylab = "Expected Return",xlim = c(0, 7*sqrt(1/C)),ylim = c(-5*A/C,5*A/C));points(sd_p, return_p);text(stdv,assetmean, c(names(assetmean)), cex = 0.8)
+
+
+```
+
+
+```{r,include=FALSE}
+#1h
+#I will choose rfb (0.01) as rf for this problem again.
+rfb = 0.001
+rb =  (assetmean1 - rfb)
+zb = t(sigmainv1) %*% rb
+xb = zb / sum(zb)
+return_b = t(xb) %*% assetmean1
+variance_b = t(xb) %*% sigma1 %*% xb
+sd_G <-variance_b^0.5
+slope = (return_b- 0.001) / (sd_G)
+return_b
+plot(sqrt(1/C),A/C,xlab = "Risk(standard deviation", ylab = "Expected Return",xlim = c(0, 7*sqrt(1/C)),ylim = c(-5*A/C,5*A/C));points(sdeff, y1, type = "l");points(sdeff, y2, type = "l");text(stdv,assetmean, c(names(assetmean)), cex = 0.8);lines(c(0,sd_G,1.3*sd_G), c(0.002,return_b, 0.002+ slope * (1.3*sd_G)));points(sd_G,return_b, cex=2, col="blue", pch=19) ;text(sd_G, return_b+.007, "G") 
+
+
+
+```
+
+```{r, include = FALSE}
+## Project 2
+#1.1
+alpha = rep(0,30)
+beta = rep(0,30)
+MSE = rep(0,30)
+
+for(i in 2:31){
+  q <- lm(as.matrix(r[i])~ as.matrix(r[1]))
+  alpha[i-1] = q$coefficients[1]
+  beta[i-1] = q$coefficients[2]
+  MSE[i-1] = summary(q)$sigma^2
+}
+names(alpha) = colnames(r[2:31])
+alpha
+names(beta) = colnames(r[2:31])
+beta
+names(MSE) = colnames(r[2:31])
+MSE
+```
+
+
+```{r, include= FALSE}
+#2.2 
+Rmt  = mean(r$X.GSPC)
+sd_mt = sd(r$X.GSPC)
+sig_mat = matrix(rep(0,30*30), nrow =30)
+variances = (beta^2) *(sd_mt^2) + MSE 
+variances
+var_cov_matrix <- matrix(rep(0), ncol = 30, nrow = 30)
+
+for(i in 1:30){
+  for (j in 1:30) {
+    var_cov_matrix[i,j] <- beta[i]*beta[j]* sd_mt^2
+  }
+}
+diag(var_cov_matrix) =variances
+var_cov_matrix
+
+```
+
+
+```{r, include = FALSE}
+#2.3
+
+beta1 <- rep(0,30)
+var_beta1 <- rep(0,30)
+beta_adj1 <- rep(0,30)
+
+#Perform regression of each stock on the index and record beta and the
+#variance of beta in period 1:
+R = cbind(r[-1],r[1])
+for(i in 1:30){
+q <- lm(data=R, formula=R[,i] ~ R[,31])
+beta1[i] <- q$coefficients[2]
+var_beta1[i] <- vcov(q)[2,2]
+}
+
+
+#Vasicek's method:
+for(i in 1:30){
+beta_adj1[i] <- var_beta1[i]*mean(beta1)/(var(beta1)+var_beta1[i]) +
+var(beta1)*beta1[i]/(var(beta1)+var_beta1[i])
+}
+
+
+#Compute betas for period 2:
+beta2 <- rep(0,30)
+R2 = cbind(r2[-1],r2[1])
+for(i in 1:30){
+q <- lm(data=R2, formula=R2[,i] ~ R2[,31])
+beta2[i] <- q$coefficients[2]
+}
+
+
+
+#Blume's method
+blume <- lm(beta2 ~beta1)
+beta3 <- blume$coefficients[1]+blume$coefficients[2]*beta2
+
+
+#Compare the forecast betas using the two methods
+beta3 #Blume's method.
+
+beta_adj1 #Vasicek's method.
+compare = cbind(beta1,beta2,beta_adj1,beta3)
+compare
+
+
+```
+
+```{r,include=FALSE,eval=FALSE}
+
+r_project3 = cbind(r[-1],r[1])
+
+#Read the data in matrix form:
+b <- as.matrix(r_project3)
+
+#Initialize the vectors and matrices:
+x <- rep(0, 180)
+xx <- matrix(x, ncol=6, nrow=30)
+
+stock <- rep(0,30)
+alpha <- rep(0,30)
+beta <- rep(0,30)
+mse <- rep(0,30)
+Rbar <- rep(0,30)
+Ratio <- rep(0,30)
+col1 <- rep(0,30)
+col2 <- rep(0,30)
+col3 <- rep(0,30)
+col4 <- rep(0,30)
+col5 <- rep(0,30)
+
+#Perform regression of each stock on the index and record alpha, beta, #sigma_e^2:
+for(i in 1:30){
+  alpha[i] <- lm(data=r_project3,formula=r_project3[,i] ~ r_project3[,31])$coefficients[1]
+  beta[i] <- lm(data=r_project3,formula=r_project3[,i] ~ r_project3[,31])$coefficients[2]
+  Rbar[i] <- alpha[i]+beta[i]*mean(b[,31])
+  mse[i] <- sum(lm(data=r_project3, formula=r_project3[,i] ~ r_project3[,31])$residuals^2)/(nrow(b)-2)
+  Ratio[i] <- (Rbar[i]-rf)/beta[i]
+  stock[i] <- i
+}
+#betas are all positive
+which(beta <  0)
+#So far we have this table:
+xx <- (cbind(stock,alpha, beta, Rbar, mse, Ratio))
+
+#Order the table based on the excess return to beta ratio:
+aaa <- xx[order(-Ratio),]
+head(aaa)
+
+#Create the last 5 columns of the table:
+col1 <- (aaa[,4]-rf)*aaa[,3]/aaa[,5]
+col3 <- aaa[,3]^2/aaa[,5]
+for(i in(1:30)) {
+  col2[i] <- sum(col1[1:i])
+  col4[i] <- sum(col3[1:i])
+}
+
+
+
+#Compute the Ci (col5):
+for(i in (1:30)) {
+  col5[i] <- var(r_project3[,31])*col2[i]/(1+var(r_project3[,31])*col4[i])
+}
+aaaa <- cbind(aaa, col1, col2, col3, col4, col5)
+head(aaaa)
+```
+
+
+
+```{r,include=FALSE,eval=FALSE}
+#3.b
+#SHORT SALES ALLOWED:
+#Compute the Zi:
+z_short <- (aaa[,3]/aaa[,5])*(aaa[,6]-col5[30])
+z_short
+#Compute the xi:
+x_short <- z_short/sum(z_short)
+x_short
+#The final table when short sales allowed:
+aaaa <- cbind(aaa, col1, col2, col3, col4, col5, z_short, x_short)
+head(aaaa)
+sum(x_short)
+#SHORT SALES NOT ALLOWED:
+#First create a matrix up to the maximum of col5:
+table1 <- cbind(aaa, col1, col2, col3, col4, col5)
+table1
+table2 <- table1[1:which(col5==max(col5)),]           
+table2                                                   ############# 테이블형식이 안될정도로 col5 max 가 첫 행렬에 있음
+
+
+#Compute the Zi:
+z_no_short <- (table2[3]/table2[5])*(table2[6]-max(col5))    ####### 원래는 태이블이 데이터프레임 형식으로 콜룸들끼리 나눠야하
+z_no_short
+#Compute the xi:
+x_no_short <- z_no_short/sum(z_no_short)
+
+#The final table when short sales are not allowed:
+aaaaa <- cbind(table2, z_no_short, x_no_short)
+aaaaa
+
+
+assetmean_short = assetmean1[aaaa[,1]]
+rbar_short = t(x_short) %*% assetmean_short
+rbar_short #short sale allowed g point rbar
+sigma_short = var(r_project3[,aaaa[,1]])
+sd_short = sqrt(t(x_short) %*% sigma_short %*% x_short)
+sd_short # short sale allowed g point sd
+table2
+r_noshort = r_project3[,as.numeric(table2[1])]
+r_noshort
+assetmean_noshort = mean(r_noshort)   ######### 원래는 colmeans
+sigma_noshort = var(r_noshort)       ####### 원래는 cov
+rbar_noshort1 = t(x_no_short) %*% assetmean_noshort
+rbar_noshort1 # short sale not allowed g point rbar
+sd_noshort1 = sqrt(t(x_no_short) %*% sigma_noshort %*% x_no_short)
+sd_noshort1  # short sale not allowed g point sd
+
+plot(sqrt(1/C),A/C,xlab = "Risk(standard deviation", ylab = "Expected Return",xlim = c(0, 7*sqrt(1/C)),ylim = c(-7*A/C,7*A/C));points(sdeff, y1, type = "l");points(sdeff, y2, type = "l");text(stdv,assetmean, c(names(assetmean)), cex = 0.8);lines(c(0,sd_G,1.3*sd_G), c(0.002,return_b, 0.002+ slope * (1.3*sd_G)));points(sd_G,return_b, cex=2, col="blue", pch=19) ;text(sd_G, return_b+.007, "G") ;text(sd_short,rbar_short,"short sales", col = "purple" );text(sd_noshort1, rbar_noshort1,"no short sales", col = "green")
+
+```
+
+
+
+```{r,include=FALSE, eval = FALSE}
+#3.c
+rbar_noshort = rep(0, 530)
+
+sd_noshort = rep(0,530)
+
+
+#Read the data in matrix form:
+for(j in 1:530){
+b <- as.matrix(r_project3)
+
+#Initialize the vectors and matrices:
+x <- rep(0, 180)
+xx <- matrix(x, ncol=6, nrow=30)
+
+stock <- rep(0,30)
+alpha <- rep(0,30)
+beta <- rep(0,30)
+mse <- rep(0,30)
+Rbar <- rep(0,30)
+Ratio <- rep(0,30)
+col1 <- rep(0,30)
+col2 <- rep(0,30)
+col3 <- rep(0,30)
+col4 <- rep(0,30)
+col5 <- rep(0,30)
+
+rf <- (j/1000)- 0.5
+#Perform regression of each stock on the index and record alpha, beta, #sigma_e^2:
+for(i in 1:30){
+  alpha[i] <- lm(data=r_project3,formula=r_project3[,i] ~ r_project3[,31])$coefficients[1]
+  beta[i] <- lm(data=r_project3,formula=r_project3[,i] ~ r_project3[,31])$coefficients[2]
+  Rbar[i] <- alpha[i]+beta[i]*mean(b[,31])
+  mse[i] <- sum(lm(data=r_project3, formula=r_project3[,i] ~ r_project3[,31])$residuals^2)/(nrow(b)-2)
+  Ratio[i] <- (Rbar[i]-rf)/beta[i]
+  stock[i] <- i
+}
+
+#So far we have this table:
+xx <- (cbind(stock,alpha, beta, Rbar, mse, Ratio))
+
+#Order the table based on the excess return to beta ratio:
+aaa <- xx[order(-Ratio),]
+
+#Create the last 5 columns of the table:
+col1 <- (aaa[,4]-rf)*aaa[,3]/aaa[,5]
+col3 <- aaa[,3]^2/aaa[,5]
+for(i in(1:30)) {
+  col2[i] <- sum(col1[1:i])
+  col4[i] <- sum(col3[1:i])
+}
+
+
+
+#Compute the Ci (col5):
+for(i in (1:30)) {
+  col5[i] <- var(r_project3[,31])*col2[i]/(1+var(r_project3[,31])*col4[i])
+}
+aaaa <- cbind(aaa, col1, col2, col3, col4, col5)
+
+
+
+#SHORT SALES NOT ALLOWED:
+#First create a matrix up to the maximum of col5:
+table1 <- cbind(aaa, col1, col2, col3, col4, col5)
+table2 <- table1[1:which(col5==max(col5)), , drop= FALSE]
+
+#Compute the Zi:
+z_no_short <- (table2[,3]/table2[,5])*(table2[,6]-max(col5))
+
+#Compute the xi:
+x_no_short <- z_no_short/sum(z_no_short)
+
+#The final table when short sales are not allowed:
+aaaaa <- cbind(table2, z_no_short, x_no_short)
+
+
+
+r_noshort = r_project3[,as.numeric(table2[,1])]
+
+sigma_noshort = var(r_noshort)
+
+rbar_noshort[j] = t(aaaaa[,13]) %*% aaaaa[,4]
+
+# short sale not allowed g point rbar
+sd_noshort[j] = sqrt(t(aaaaa[,13]) %*% sigma_noshort %*% x_no_short)
+  # short sale not allowed g point sd
+
+
+thedata = cbind(sd_noshort, rbar_noshort)
+
+
+plot(thedata, xlim = c(0,0.08), ylim = c(0,0.05), type = "o")
+
+
+```
+
+```{r, include=FALSE}
+#project4 a~ b
+r_project4 = cbind(r[-1],r[1])
+
+#Compute the average correlation:
+rho <- (sum(cor(r_project4[1:30]))-30)/870
+rho
+#Initialize the vectors:
+col1 <- rep(0,30)
+col2 <- rep(0,30)
+col3 <- rep(0,30)
+
+#Initialize the var-covar matrix:
+y <- rep(0,900)
+mat <- matrix(y, ncol=30, nrow=30)
+
+#Compute necessary quantities:
+Rbar <- colMeans(r_project4[1:30])
+Rbar_f <- Rbar-0.001
+sigma <- (diag(var(r_project4[,1:30])))^.5
+Ratio <- Rbar_f/sigma
+
+#Initial table:
+xx <- (cbind(Rbar, Rbar_f, sigma, Ratio))
+
+#Order the table based on the excess return to sigma ratio:
+aaa <- xx[order(-Ratio),]
+
+
+#Create the last 3 columns of the table:
+
+for(i in(1:30)) {
+  
+  col1[i] <- rho/(1-rho+i*rho)
+  
+  col2[i] <- sum(aaa[,4][1:i])
+}
+
+#Compute the Ci:
+for(i in (1:30)) {
+  
+  col3[i] <- col1[i]*col2[i]
+  
+}
+
+
+#Create the entire table until now:
+xxx <- cbind(aaa, col1, col2, col3)
+xxx
+#SHORT SALES ALLOWED:
+#Compute the Zi:
+z <- (1/((1-rho)*xxx[,3]))*(xxx[,4]-xxx[,7][nrow(xxx)])
+
+#Compute the xi:
+x <- z/sum(z)
+
+#The final table:
+aaaa <- cbind(xxx, z, x)
+
+#SHORT SALES NOT ALLOWED:
+#Find composition of optimum portfolio when short sales are not allowed:
+aaaaa <- aaaa[1:which(aaaa[,7]==max(aaaa[,7])), ]
+
+z_no <- (1/((1-rho)*aaaaa[,3]))*(aaaaa[,4]-aaaaa[,7][nrow(aaaaa)])
+x_no <- z_no/sum(z_no)
+
+#Final table:
+a_no <- cbind(aaaaa, z_no, x_no)
+a_no
+
+
+#Var-covar matrix based on the constant correlation model:
+for(i in 1:30){
+  
+  for(j in 1:30){
+    
+    if(i==j){
+      mat[i,j]=aaaa[i,3]^2
+    } else
+    {
+      mat[i,j]=rho*aaaa[i,3]*aaaa[j,3]
+    }
+  }
+}
+
+
+
+#Calculate the expected return and sd of the point of tangency 
+#when short sales allowed
+
+sd_p_opt <- (t(x) %*% mat %*% x)^.5
+
+R_p_opt <- t(x) %*% aaaa[,1]
+
+
+#Calculate the expected return and sd of the point of tangency 
+#when short sales are not allowed
+sd_p_opt_no <- (t(x_no) %*% mat[1:which(aaaa[,7]==max(aaaa[,7])),1:which(aaaa[,7]==max(aaaa[,7]))] %*% x_no)^.5
+R_p_opt_no <- t(x_no) %*% aaaaa[,1]
+
+
+#Plot from project 1
+#green point = short sales allowed tangency point
+#red point = short sales not allowed tangency point
+plot(sqrt(1/C),A/C,xlab = "Risk(standard deviation", ylab = "Expected Return",xlim = c(0, 7*sqrt(1/C)),ylim = c(-5*A/C,5*A/C));points(sdeff, y1, type = "l");points(sdeff, y2, type = "l");text(stdv,assetmean, c(names(assetmean)), cex = 0.8);lines(c(0,sd_G,1.3*sd_G), c(0.002,return_b, 0.002+ slope * (1.3*sd_G)));points(sd_G,return_b, cex=2, col="blue", pch=19) ;text(sd_G, return_b+.007, "G");points(sd_p_opt,R_p_opt, col="green", pch=19);points(sd_p_opt_no,R_p_opt_no, col="red", pch=19)
+
+```
+
+
+```{r,include=FALSE}
+a = cor(r_project4[-31])
+p11 =  (sum(a[1:6,1:6]) - 6)/ 30
+
+p12 = sum(a[1:6,7:12])/ 36
+
+p13 = sum(a[1:6,13:18])/ 36
+
+p14 = sum(a[1:6,19:24])/ 36
+
+p15 = sum(a[1:6,25:30])/ 36
+
+p22 = (sum(a[7:12,7:12]) - 6)/ 30
+
+p23 = sum(a[7:12,13:18])/ 36
+
+p24 = sum(a[7:12,19:24])/ 36
+
+p25 = sum(a[7:12,25:30])/ 36
+
+p33 = (sum(a[13:18,13:18]) - 6)/ 30
+
+p34 = sum(a[13:18,19:24])/ 36
+
+p35 = sum(a[13:18,25:30])/ 36
+
+p44 = (sum(a[19:24,19:24]) - 6)/ 30
+
+p45 = sum(a[19:24,25:30])/ 36
+
+p55 = (sum(a[25:30,25:30]) - 6)/ 30
+
+
+pbar = matrix(c(p11,p12,p13,p14,p15,p12,p22,p23,p24,p25,p13,p23,p33,p34,p35,p14,p24,p34,p44,p45,p15,p25,p35,p45,p55), ncol = 5, byrow = TRUE)
+pbar
+Amatrix = matrix(c(rep(0,25)), nrow = 5)
+
+for(i in 1:5){
+  
+  for(j in 1:5){
+    
+    if(i==j){
+      Amatrix[i,j]=1+((6*pbar[i,j])/(1-pbar[i,j]))
+    } else
+    {
+      Amatrix[i,j]= (6*pbar[i,j])/(1-pbar[i,j])
+    }
+  }
+}
+Amatrix
+assetmeans4 = colMeans(r_project4[-31])
+sd4 =apply(r_project4[-31], 2, sd, na.rm = TRUE)
+
+data4 = cbind(assetmeans4, sd4)
+
+cmat1 = sum((data4[1:6,1]- 0.01) / (data4[1:6,2]*(1-p11))) 
+cmat2 = sum((data4[7:12,1]- 0.01) / (data4[7:12,2]*(1-p22))) 
+cmat3 = sum((data4[13:18,1]- 0.01) / (data4[13:18,2]*(1-p33))) 
+cmat4 = sum((data4[19:24,1]- 0.01) / (data4[19:24,2]*(1-p44))) 
+cmat5 = sum((data4[25:30,1]- 0.01) / (data4[25:30,2]*(1-p55))) 
+Cmatrix = c(cmat1,cmat2,cmat3,cmat4,cmat5)
+Cmatrix
+
+theta = solve(Amatrix) %*% Cmatrix
+theta
+
+cstar = rep(pbar %*% theta, each = 6)
+
+pkk =  rep(diag(pbar), each = 6)
+rbarf = data4[,1] - 0.01
+ratio = (data4[,1] - 0.01)/ data4[,2]
+data5 = cbind(data4,rbarf,ratio,pkk,cstar)
+head(data5)
+
+zscore = (1/(data5[,2]*(1-data5[,5])))*(data5[,4]-data5[,6])
+xvalue = -zscore/ sum(zscore)
+data6 = cbind(data5,zscore,xvalue)
+data6
+
+return_partc = t(data6[,8]) %*% data6[,1]
+sigma = cov(r_project4[-31])
+risk_partc = sqrt(t(data6[,8]) %*% sigma %*% data6[,8] )
+risk_partc
+return_partc
+#purple point = tangency of multi group model
+
+plot(sqrt(1/C),A/C,xlab = "Risk(standard deviation", ylab = "Expected Return",xlim = c(0.01, 0.3),ylim = c(-0.2,0.2));points(sdeff, y1, type = "l");points(sdeff, y2, type = "l");points(stdv,assetmean, col = "black");lines(c(0,sd_G,1.3*sd_G), c(0.002,return_b, 0.002+ slope * (1.3*sd_G)));points(sd_G,return_b, cex=2, col="blue", pch=19) ;text(sd_G, return_b+.007, "G");points(sd_p_opt,R_p_opt, col="green", pch=19);points(sd_p_opt_no,R_p_opt_no, col="red", pch=19);points(risk_partc,return_partc, col="purple", pch=19)
+
+
+
+```
+
+##Project 5
+#a.
+
+```{r}
+r5 = as.matrix(r)
+
+datamat = matrix(rep(0,1829), ncol =31)
+for(i in 1:31){
+  datamat[,i] = cumprod(1+r5[,i])
+}
+#Equal allocation weights:
+x <- rep(1/30,30)
+EquRet <- t(x) %*% t(r5[,-1])
+#just plotting market and equal allocation
+plot(cumprod(1+r5[,1]), col="green", lwd=2, type="l", ylim=c(0.7,1.8), main = "First plot:only Market and equal_allocation");lines(cumprod(1+EquRet), col="blue", lwd=2);legend('bottomright', lty=1:2, c('S&P500','EQUAL'), col=c("green", "blue"))
+
+#Now plotting all 30 stocks
+library(ggplot2)
+library(reshape2)
+datamat2 = as.data.frame(datamat)
+names(datamat2) = colnames(r)
+
+datamat2 = cbind(time = 1:59,equal_allocation = c(cumprod(1+EquRet)), datamat2)
+
+datamat3 = melt(datamat2, id.vars = 'time',value.name = "returns", variable.name = 'stocks')
+ggplot(datamat3, aes(time,returns)) + geom_line(aes(colour = stocks))
+
+
+```
+
+#b.
+```{r}
+r_project3 = cbind(r[-1],r[1])
+
+
+#Initialize the vectors and matrices:
+
+stock <- rep(0,30)
+beta <- rep(0,30)
+variance <- rep(0,30)
+Rbar <- rep(0,30)
+Sharpe_Ratio <- rep(0,30)
+Treynor_Ratio <- rep(0,30)
+Jensen_differential <- rep(0,30)
+Differential_excess_return <- rep(0,30)
+
+rm = mean(r[,1])
+varm = var(r[,1])
+rf <- 0.001
+#Perform regression of each stock on the index and record alpha, beta, #sigma_e^2:
+for(i in 1:30){
+  stock[i] <-colnames(r)[i]
+  Rbar[i] <- mean(r_project3[,i])
+  variance[i] = sd(r_project3[,i])
+  beta[i] <- lm(data=r_project3,formula=r_project3[,i] ~ r_project3[,31])$coefficients[2]                
+  Sharpe_Ratio[i] <- (Rbar[i]-rf)/variance[i] 
+  Differential_excess_return[i] = rf +((rm - rf)/varm) * variance[i]
+  Treynor_Ratio[i] = (Rbar[i] - rf) / beta[i] 
+  Jensen_differential[i] = rf+ ((rm - rf)/1)*beta[i]
+  }
+Alldata = cbind(stock,Rbar,variance,beta,Sharpe_Ratio,Differential_excess_return,Jensen_differential,Treynor_Ratio)
+head(Alldata)
+
+
+```
+#c.
+```{r}
+
+##Fama evalaution 
+
+return_selectivity = rep(0,30)
+return_risk = rep(0,30)
+Total_excess_return = rep(0,30)
+True_Ra_minus_Rf = rep(0,30)
+Jensen_differential
+Rbar[30]- Jensen_differential[30]
+
+for(i in 1:30){
+  return_selectivity[i] = Rbar[i] - Jensen_differential[i]
+  return_risk[i] = Jensen_differential[i] - rf
+  Total_excess_return[i] = return_selectivity[i] + return_risk[i]
+  True_Ra_minus_Rf[i] = Rbar[i] - rf
+  }
+
+Jensen_data = cbind(return_selectivity,return_risk,Total_excess_return,True_Ra_minus_Rf)
+head(Jensen_data)
+
+#Fama's formula that Ra = return selctivity + return from risk works.
+
+#When there are not short sales allowed
+stocks_noshort = c( 19, 15,  2, 11, 13, 16, 22, 21) 
+####### these are stocks when short sales are not allowed
+####### It is proven in project 3
+stocks_noshort
+head(Jensen_data[stocks_noshort,])
+
+
+
+
+```
+
+#d.
+```{r}
+
+#####1. historical method
+colnames(r[,stocks_noshort+1]) #######stocks of short sales not allowed.
+
+a = read.csv("~/stockData (9).csv")
+nrow(a)
+r <- (a[-1,3:ncol(a)]-a[-nrow(a),3:ncol(a)])/a[-nrow(a),3:ncol(a)]
+#Equal allocation (dollar amounts):
+x <- rep(125000,8)
+
+#Compute the portfolio changes in dollar ammount for each possible scenario:
+DP <-  as.matrix(r) %*% x
+
+
+#Find the 1st percentile of the distribution of DP:
+#Histogram:
+hist(DP)
+
+#Find the 1st percentile:
+VaR <- quantile(DP, 0.01)
+
+#Place it on the histogram:
+hist(DP);points(VaR,0,pch=19)
+
+#Verify:
+sum(DP<=VaR)  #This should give 5.
+
+#Finally compute the 5-day 99% VaR:
+VaR*sqrt(5)
+
+
+########2. monte carlo method
+
+
+#Assume DX ~ N5(0, Sigma)
+#Obtain many random vectors from this distibution.  Use Cholesky or spectral decomposition method
+#Use each vector to compute the change in the portfolio.
+#Here is one sample:
+Sigma = var(r)
+L <- chol(Sigma)
+
+#One samle:
+e <- rnorm(8)
+mu <- rep(0,8)
+
+DX <- mu + t(L) %*% e
+
+DP <-  t(x) %*% DX
+
+#Many samples:
+errors <- rnorm(8000)
+epsilon <- matrix(errors, 8,1000, byrow=FALSE)
+
+DXX <-  t(L) %*% epsilon
+
+aa <- t(x) %*% DXX #Simulated changes in portfolio.
+
+#5-day 99% VaR using simulations::
+sd(aa) * qnorm(.99) * 5^.5
+
+#Or using spectral decomposition:
+q1 <- eigen(Sigma)
+Sigmasqrt <- q1$vectors %*% diag(q1$values^.5) %*% t(q1$vectors)
+
+errors <- rnorm(8000)
+epsilon <- matrix(errors, 8,1000, byrow=FALSE)
+
+DXX <-  Sigmasqrt %*% epsilon
+
+aa <- t(x) %*% DXX #Simulated changes in portfolio.
+
+#5-day 99% VaR using simulations:
+sd(aa) * qnorm(.99) * 5^.5
+
+
+
+
+```
