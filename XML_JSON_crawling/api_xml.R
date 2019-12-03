@@ -1,0 +1,66 @@
+
+key <- 'LXprn7JlCqsTMmS0nFPJ%2B7jFuunTiwvNBQWm3zmvzIop6%2BzzKzRukiZpic8Sj3%2Bpyd2Q1LSag1NE0g4FyysRmA%3D%3D'
+URL <- 'http://apis.data.go.kr/1192000/openapi/service/ManageExpNationItemService/getExpNationItemList'
+
+
+'?ServiceKey=인증키&baseDt=201712&pageNo=1&numOfRows=3&type=xml'
+
+
+library(tidyverse)
+library(httr)
+library(rvest)
+library(jsonlite)
+
+res <- GET(url = URL, query = list(
+  ServiceKey = I(key),
+  baseDt = '201501',
+  pageNo = 1,
+  numOfRows= 10,
+  type='Json'
+))
+
+res %>% content(as = 'text', encoding = 'UTF-8') %>% fromJSON() -> json
+json$response$body$item[1:3,]
+
+
+
+res <- GET(url = URL, query = list(
+  ServiceKey = I(key),
+  baseDt = '201501',
+  pageNo = 1,
+  numOfRows= 10,
+  type='xml'
+))
+
+
+res %>% read_xml(encoding = 'UTF-8') %>%  xml_nodes(css = 'body > items > item') -> items
+items %>% xml_node(css = 'nationCode') %>%  xml_text(trim = T) -> nationcode
+items %>% xml_node(css = 'nationNm') %>%  xml_text(trim = T) -> nationname
+
+
+df <- data.frame(nationcode,nationname)
+df
+
+df <- data.frame()
+for(page in 1:5){
+  res <- GET(url = URL, query = list(
+    ServiceKey = I(key),
+    baseDt = '201701',
+    pageNo = page,
+    numOfRows= 10,
+    type='xml'
+  ))
+  res %>% read_xml(encoding = 'UTF-8') %>%  xml_nodes(css = 'body > items > item') -> items
+  items %>% xml_node(css = 'nationCode') %>%  xml_text(trim = T) -> nationcode
+  items %>% xml_node(css = 'nationNm') %>%  xml_text(trim = T) -> nationname
+  wow <- as.data.frame(nationcode,nationname)
+  rbind(df,wow) -> df
+}
+df %>% nrow()
+df
+#install.packages("RJSONIO")
+library(RJSONIO)
+toJSON(res$date)
+
+
+
