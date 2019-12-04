@@ -72,7 +72,7 @@ table(pred)
 table(real)
 
 
-#install.packages("MLmetrics")
+install.packages("MLmetrics")
 #################################  f1 score 확인
 
 library(MLmetrics)
@@ -81,28 +81,28 @@ F1_Score(y_pred = pred, y_true = real, positive = 'best') ###### 정확도는 �
 
 
 ################################################# cofnusion matrix
-#install.packages("caret")
-#install.packages("e1071")
+install.packages("caret")
+install.packages("e1071")
 library(caret)
 library(e1071)
 confusionMatrix(data= pred, reference = real, positive = 'best')
 
-#install.packages("ROCR") 
+install.packages("ROCR") 
 #######################################################  ROC 커브 
 library(ROCR)
-
 predObj <- prediction(predictions= as.numeric(pred), labels = as.numeric(real))
 predObj
 perform <- performance(prediction.obj = predObj, measure = 'tpr', x.measure = 'fpr')
 plot(x= perform, main = "ROC curve")
-#install.packages("pROC")
+
+install.packages("pROC")
 ############################## roc curve 넓이 
 library(pROC)
 auc(response = as.numeric(x=real), predictor = as.numeric(x = pred))
 
 
 ########################################  over sampleing 해서 샘플링 개수 평준화
-#install.packages("ROSE")
+install.packages("ROSE")
 library(ROSE)
 head(trainSet)
 ovun.sample(formula = grade~.,data= trainSet, method = 'both', p = 0.5) -> trainSetBall
@@ -111,7 +111,7 @@ trainSetBall$data %>% dim()
 
 
 ############################################################### kknn
-#install.packages("kknn")
+install.packages("kknn")
 library(kknn)
 kknn(formula = grade~.,train = trainSetBall$data,test =   testSet, k = k , kernel = 'triangular') -> fitKnnW
 
@@ -171,7 +171,7 @@ testSet$PersonalLoan %>%  table() %>%  prop.table()
 
 
 ########################################### 회귀나무
-#install.packages("rpart")
+install.packages("rpart")
 library(rpart)
 #정지규칙 의사결정 
 set.seed(seed = 1234)
@@ -182,7 +182,7 @@ text(fit1, use.n= TRUE , cex = 1.0, all = TRUE)
 
 ################################## better graph
 
-#install.packages("rpart.plot")
+install.packages("rpart.plot")
 library(rpart.plot)
 rpart.plot(fit1 , type = 2 , extra = 104 , fallen.leaves =  F)
 
@@ -218,12 +218,14 @@ pred2 <- predict(fit2, newdata = testSet, type = "class")
 real <- testSet$PersonalLoan
 table(pred1)
 table(pred2)
+install.packages("caret")
 library(caret)
 confusionMatrix(data = pred1, reference = real, positive = "1")
 confusionMatrix(data = pred2, reference = real, positive = "1")
 
 printcp(fit1)
 printcp(fit2)
+install.packages("MLmetrics")
 library(MLmetrics)
 is.factor(pred1)
 is.factor(real)
@@ -233,7 +235,7 @@ F1_Score(y_pred = pred2, y_true = real, positive = '1')
 
 
 ######################## ROC 커브 모양/ 넓이 까지 구하기
-
+install.packages("pROC")
 library(pROC)
 
 auc(response = as.numeric(real), predictor = as.numeric(pred1))

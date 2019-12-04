@@ -1,4 +1,5 @@
-
+install.packages("dplyr")
+install.packages("tidyverse")
 library(dplyr)
 library(tidyverse)
 ###############그래디언트 부스팅 학습
@@ -15,7 +16,7 @@ bank$PersonalLoan %>%  table()
 trainSet <- bank[index == 1,]                         ########### trainset 만들기
 testSet <- bank[index == 2, ]                         ########### testset 만들기
 
-
+install.packages("gbm")
 library(gbm)                                     ########gbm 패키지
 set.seed(seed= 1234)
 fitGBC <- gbm(formula = PersonalLoan~., data = trainSet, distribution = 'multinomial', 
@@ -24,8 +25,9 @@ fitGBC <- gbm(formula = PersonalLoan~., data = trainSet, distribution = 'multino
               bag.fraction =0.5,
               cv.folds = 5, 
               n.cores = 3)    ####### gradient 알고리즘은 오래 걸리는 단점이 있다
-
+install.packages("parallel")
 library(parallel)
+
 detectCores()
 
 fitGBC %>% print()
@@ -50,17 +52,18 @@ colnames(x= pred)[maxCol] %>% as.factor -> pred
 
 real <- testSet$PersonalLoan
 ####################### 성능 평가
-
+install.packages("caret")
 library(caret)
 confusionMatrix(data = pred, reference = real, positive = '1') # 정확도를 알 수 있다 
-
+install.packages("MLmetrics")
 library(MLmetrics)
 F1_Score(y_pred = pred, y_true = real, positive = '1')  # f1 score
-
+install.packages("ROCR")
 library(ROCR)
 predObj <- prediction(predictions = as.numeric(x=pred), labels = as.numeric(x=real))
 perform <- performance(prediction.obj = predObj, measure = 'tpr', x.measure = 'fpr')
 plot(perform)
+install.packages("pROC")
 library(pROC)
 auc(response = as.numeric(x=real), predictor = as.numeric(x=pred))
 
@@ -141,7 +144,7 @@ fitRFR <-readRDS(file = 'fitRFR.RDS')
 bestRFR %>% summary()
 
 
-
+install.packages("randomForest")
 library(randomForest)
 pred2 <- predict(object = fitRFR, newdata = testSet, type = 'response')
 

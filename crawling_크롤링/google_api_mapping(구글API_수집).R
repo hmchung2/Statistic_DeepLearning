@@ -1,5 +1,7 @@
 install.packages("devtools")
 devtools::install_github('dkahle/ggmap', force  = T)
+install.packages("dplyr")
+install.packages("tidyverse")
 library(ggmap)
 library(dplyr)
 library(tidyverse)
@@ -14,7 +16,7 @@ data = read.csv('starbucks_loc_calc.csv')   ############ 스타벅스 위도 경
 nrow(data)
 center <- c(mean(x = data$lng), mean(x = data$lat))  ######## 지도의 중간지점을 계산한다
 center
-
+install.packages("showtext")
 library(showtext)                               # 패키지 설치
 
 font_add_google("Nanum Gothic", "nanumgothic")            ##############   한글이라 폰트를 바꾼다.

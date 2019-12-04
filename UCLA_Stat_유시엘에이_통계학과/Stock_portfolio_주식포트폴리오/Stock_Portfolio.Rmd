@@ -681,6 +681,8 @@ EquRet <- t(x) %*% t(r5[,-1])
 plot(cumprod(1+r5[,1]), col="green", lwd=2, type="l", ylim=c(0.7,1.8), main = "First plot:only Market and equal_allocation");lines(cumprod(1+EquRet), col="blue", lwd=2);legend('bottomright', lty=1:2, c('S&P500','EQUAL'), col=c("green", "blue"))
 
 #Now plotting all 30 stocks
+install.packages("ggplot2")
+install.packages("reshape2")
 library(ggplot2)
 library(reshape2)
 datamat2 = as.data.frame(datamat)

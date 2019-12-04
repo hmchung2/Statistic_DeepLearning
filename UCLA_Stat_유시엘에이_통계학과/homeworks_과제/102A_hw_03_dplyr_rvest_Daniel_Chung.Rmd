@@ -110,7 +110,9 @@ state
 Install the package `fueleconomy` and load the dataset `vehicles`. Answer the following questions.
 
 ```{r exc2data, error = TRUE}
-# install.packages("fueleconomy")
+install.packages("fueleconomy")
+install.packages("dplyr")
+install.packages("tidyr")
 library(fueleconomy)
 library(dplyr)
 library(tidyr)
@@ -212,6 +214,7 @@ __Hint:__ _I used the function `html_table()` to extract the table from each tea
 __Important:__ _It is bad manners to repeatedly hit a site with http requests, and could cause your IP to become banned. While you are testing out your code, be sure to test with only two or three teams at a time. Once you get your code running, then you may expand your code to download data for all 30 teams._
 
 ```{r exc4, error = TRUE, message = FALSE}
+install.packages("rvest")
 library(rvest)
 # starting page
 teampage <- read_html("http://www.baseball-reference.com/teams/")
@@ -242,6 +245,7 @@ I've written some commands for you that will replace all instances of the non-br
 
 ```{r baseball_cleanup, error = TRUE}
 # you should not need to modify this code, but you will probably need to run it.
+install.packages("stringr")
 library(stringr)
 # This code checks to see if text in table has regular space character
 # Because the text from the web uses a non-breaking space, we expect there to be a mismatch

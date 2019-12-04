@@ -4,7 +4,7 @@
 bank <- read.csv(file = 'https://goo.gl/vE8GyN', stringsAsFactors = FALSE)
 house <- read.table(file='https://goo.gl/jsvkYS', header = TRUE)
 str(house)
-
+install.packages("tidyverse")
 library(tidyverse)
 
 bank <- bank %>% select(-ID,-ZIP.Code)
@@ -15,7 +15,7 @@ trainSet <- bank[index == 1 , ]
 testSet <- bank[index == 2 , ]
 
 
-#install.packages("randomForest")
+install.packages("randomForest")
 library(randomForest)
 colnames(trainSet)[8]
 set.seed(seed = 1234)
@@ -59,7 +59,7 @@ prob <- prob[,2]
 
 tail(prob)
 real <- testSet$PersonalLoan
-
+install.packages("caret")
 library(caret)
 confusionMatrix(data = pred, reference = real, positive = '1')   ### 회귀 나무보다 훨씬 정확도가 높다
 
@@ -71,11 +71,13 @@ confusionMatrix(data = predDT, reference = real, positive = '1')
 str(testSet)
 dim(testSet)
 ############### f1 score 비교
+install.packages("MLmetrics")
 library(MLmetrics)
 F1_Score(y_pred = pred, y_true = real, positive = '1')
 F1_Score(y_pred = predDT, y_true = real, positive = '1')
 
 ###############ROC curve 비교
+install.packages("ROCR")
 library(ROCR)
 predObj <- prediction(predictions = as.numeric(x = pred), labels = as.numeric(x=real))
 perform <- performance(prediction.obj = predObj, measure = 'tpr', x.measure = 'fpr')
@@ -87,13 +89,14 @@ prediction(predictions = as.numeric(x = predDT), labels = as.numeric(x=real))%>%
 prediction(predictions = as.numeric(x = prob), labels = as.numeric(x=real))%>% performance( measure = 'tpr', x.measure = 'fpr')%>% plot( main = 'ROC curve')
 
 ############## auc score 비교
+install.packages("pROC")
 library(pROC)
 auc(response = as.numeric(x= real), predictor = as.numeric(x=pred))
 auc(response = as.numeric(x= real), predictor = as.numeric(x=predDT))
 
 #################### GBM 패키지 다운로드
 #################### grid 형식을 깔아서 여러개의 경우의 수를 보자
-#install.packages("gbm")
+install.packages("gbm")
 library(gbm)
 grid <- expand.grid(ntree= c(300,500,700,1000), mtry = c(3,5,7,9,11))
 grid

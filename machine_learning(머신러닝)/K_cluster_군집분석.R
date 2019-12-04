@@ -1,6 +1,9 @@
 ### 군집분석
 
 #################### 데이터 확인
+install.packages("dplyr")
+install.packages("tidyverse")
+library(dplyr)
 library(tidyverse)
 USArrests %>% str()
 
@@ -36,7 +39,7 @@ hclustPlot(distMat,'ward.D2','최ㄷ연결법',3)
 
 
 #################### 비계층적 군집 분석
-#install.packages("factoextra")
+install.packages("factoextra")
 library(factoextra)
 fit1 <- eclust(x =USAscaled, FUNcluster = 'kmeans', k = 3, hc_metric = 'euclidean', seed = 1234)    ##### 주성분으로 그래프도 시각화
 print(fit1)

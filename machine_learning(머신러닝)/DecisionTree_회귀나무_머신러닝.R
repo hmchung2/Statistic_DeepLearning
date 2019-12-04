@@ -1,3 +1,5 @@
+install.packages("dplyr")
+install.packages("tidyverse")
 library(dplyr)
 library(tidyverse)
 ####################회귀나무 알고리즘
@@ -13,20 +15,20 @@ trainSet <- house[index == 1 , ]
 testSet <- house[index == 2 ,  ] 
 trainSet$MedianHouseValue %>% mean()   ### 평균값들 확인
 testSet$MedianHouseValue %>%  mean()
-
+install.packages("rpart")
 library(rpart)
 fit <- rpart(formula = MedianHouseValue ~ Longitude + Latitude, 
              data = trainSet, control = rpart.control(minsplit=20, cp = 0.01))
 summary(fit)   ############## 나눠진 노드들 확인
 printcp(fit)
 
-
+install.packages("rpart.plot")
 library(rpart.plot)
 rpart.plot(fit , type = 0)
 
 
 ############################################## 그래프 디자인 및 색깔 고르기
-#install.packages("RColorBrewer")
+install.packages("RColorBrewer")
 library(RColorBrewer)
 display.brewer.all()
 display.brewer.pal(n = 9, name = 'Spectral')
@@ -70,8 +72,7 @@ error2^2 %>%  mean() %>% sqrt()
 plot(real, pred2)
 plot(real, pred1)                     #### 그래프도 더 좋은 모양을 보여준다 
 
-#install.packages("tree")
-
+install.packages("tree")
 library(tree)
 
 fitTree <- tree(MedianHouseValue ~ Longitude + Latitude, data = house)

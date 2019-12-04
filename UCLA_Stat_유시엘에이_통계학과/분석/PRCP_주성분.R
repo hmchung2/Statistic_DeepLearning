@@ -9,7 +9,7 @@
 #
 
 Congmen <- read.csv("http://www.stat.ucla.edu/~jsanchez/stat102B2018/VotingNJCongressmen.csv",header=TRUE,row.names=1)
-
+install.packages("Congmen")
 attach(Congmen)
 
 Congmen
@@ -59,7 +59,7 @@ MDSdim4Vote.cmd <- cmdscale(dist.Vote, eig=TRUE, k=4)
 # Defaults for the number of iterations and tolerance are used
 
 # Before running library(MASS) make sure you have installed the package
-
+install.packages("MASS")
 library(MASS)
 
 MDSdim2Vote.iso <- isoMDS(dist.Vote)        # k=2

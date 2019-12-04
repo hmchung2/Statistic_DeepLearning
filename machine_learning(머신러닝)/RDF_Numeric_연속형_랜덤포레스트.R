@@ -1,6 +1,9 @@
 house <- read.table(file='https://goo.gl/jsvkYS', header = TRUE)
 str(house)
-
+install.packages("dplyr")
+install.packages("tidyverse")
+install.packages("caret")
+library(dplyr)
 library(tidyverse)
 library(caret)
 
@@ -13,7 +16,7 @@ testSet <- house[index == 2 , ]
 
 trainSet$MedianHouseValue %>% mean()
 testSet$MedianHouseValue %>% mean()
-
+install.packages("randomForest")
 library(randomForest)
 set.seed(seed=1234)
 fitRFR <- randomForest(x = trainSet[,-1],
@@ -47,7 +50,7 @@ plot(x = real, y = pred)
 ############# 그냥 리니어 리그레션
 full <- lm(formula = MedianHouseValue ~., data = trainSet)
 summary(full)
-#install.packages("DAAG")
+install.packages("DAAG")
 library(DAAG)
 vif(full)
 null <- lm(formula = MedianHouseValue ~1, data = trainSet)

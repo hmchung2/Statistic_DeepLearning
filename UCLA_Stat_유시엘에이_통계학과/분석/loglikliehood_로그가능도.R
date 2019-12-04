@@ -16,6 +16,3 @@ se
 fit
 d = matrix(c(8,0,0,2),ncol = 2)
 solve(d)
-
-
-1/8

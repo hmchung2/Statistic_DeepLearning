@@ -6,7 +6,13 @@ URL <- 'http://apis.data.go.kr/1192000/openapi/service/ManageExpNationItemServic
 
 '?ServiceKey=인증키&baseDt=201712&pageNo=1&numOfRows=3&type=xml'
 
+install.packages("dplyr")
+install.packages("tidyverse")
+install.packages("rvest")
+install.packages("jsonlite")
+install.packages("httr")
 
+library(dplyr)
 library(tidyverse)
 library(httr)
 library(rvest)
@@ -59,7 +65,7 @@ for(page in 1:5){
 }
 df %>% nrow()
 df
-#install.packages("RJSONIO")
+install.packages("RJSONIO")
 library(RJSONIO)
 toJSON(res$date)
 

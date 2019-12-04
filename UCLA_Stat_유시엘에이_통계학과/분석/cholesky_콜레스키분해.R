@@ -169,10 +169,3 @@ colMeans(X) # means of generated vectors.
 cor(X)   # cor matrix of generated numbers
 
 
-
-
-
-
-
-Last modified: Tuesday, 23 April 2019, 6:35 AM PDT
-Jump to...

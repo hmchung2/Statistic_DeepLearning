@@ -88,7 +88,7 @@ MDSdim4Vote.cmd <- cmdscale(dist.bt, eig=TRUE, k=4)
 # Before running library(MASS) make sure you have installed the package
 
 
-
+install.packages("MASS")
 library(MASS)
 
 
