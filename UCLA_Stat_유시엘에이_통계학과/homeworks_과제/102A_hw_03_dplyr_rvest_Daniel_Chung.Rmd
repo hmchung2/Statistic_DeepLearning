@@ -110,9 +110,9 @@ state
 Install the package `fueleconomy` and load the dataset `vehicles`. Answer the following questions.
 
 ```{r exc2data, error = TRUE}
-install.packages("fueleconomy")
-install.packages("dplyr")
-install.packages("tidyr")
+#install.packages("fueleconomy")
+#install.packages("dplyr")
+#install.packages("tidyr")
 library(fueleconomy)
 library(dplyr)
 library(tidyr)
@@ -170,36 +170,10 @@ vehicles %>% filter(year == 1994 | year == 1999 | year == 2004 | year == 2009 | 
 
 
 
-## 3. __More advanced dplyr__
-
-I have uploaded a dataset called dr4. It contains the dates that a user visited a website. The website is able to track if the same user visited the site more than once. For the particular date range, the site had 395 visitors, and 130 of them visited more than once. Some of them (13 people) visited the site 5 times.
-
-Using dplyr, find the average time between repeated visits to the site.
-
-You will want to find the total average. 
-
-Be careful when calculating this.
-
-For example, the first user to visit the site more than once (row 2, ,YPELGRZNOQUTNPOH) visited on 6-29, 7-27, 8-3, and 8-11. The time difference for the repeated visits are: 28 days, 7 days, and 8 days, respectively, for an average of 14.33 days. 
-
-The next user with repeated visits is row 3 (SNTCUXUDIHCCSPJA). This person visited on 6-15 and 8-17, a difference of 63 days.
-
-If your dataset had only these two rows, the average time between visits would be (28 + 7 + 8 + 63) / 4 = 26.5 days. It is not ( 14.33 + 63 ) / 2 = 38.66 days.
-
-When I first attempted this, I used `filter(), mutate(), rowwise(), ungroup()`, and `summarise()`. Upon further review, I realized that it is entirely possible to complete this task using only `filter()` and `mutate()` commands. I do not care what combination of commands you use. I do care that you get the correct final result.
-
-*Make sure your final output shows the desired average number of days between visits.*
-
-```{r exc3}
-load("C:/Users/hmchu/Downloads/dr4.Rdata")
-
-dr4 %>% filter(is.na(visit2) == FALSE)%>% mutate(diff1 = visit2- visit1, diff2 = visit3- visit2, diff3 = visit4- visit3, diff4 = visit5- visit4)%>%select(id,diff1,diff2,diff3,diff4)%>% summarise(time = sum(diff1, diff2,diff3,diff4, na.rm = TRUE), visits = nrow(dr4)*4 - sum(is.na(dr4)),average = time/ visits )
 
 
-```
 
-
-## 4. __Scrape baseball-reference.com with rvest__
+## 3. __Scrape baseball-reference.com with rvest__
 
 You will use the package rvest to scrape data from the website baseball-reference.com.
 
@@ -230,6 +204,9 @@ for(i in teamnames){
   teamhistory[[i]] <- teampage %>% html_nodes("#franchise_years") %>% html_table()%>% data.frame() %>% mutate(current= as.character(i)) 
 }
 
+
+install.packages("data.table")
+library(data.table)
 baseball =rbindlist(teamhistory)
 
 # at the end, be sure to print out the dimensions of your baseball table.
@@ -269,7 +246,7 @@ for(i in char_cols){
 all.equal(charToRaw(baseball$Tm[1]), charToRaw("Arizona Diamondbacks"))
 ```
 
-## 5. __Using dplyr to summarize data__
+## 4. __Using dplyr to summarize data__
 
 Once you have created your table, use the data it contains to calculate some summary statistics.
 
@@ -299,7 +276,7 @@ baseball2 %>% filter(Year > 2000 & Year < 2019) %>% group_by(current) %>% summar
 
 ```
 
-## 6. __Regular expressions to extract values in the Managers Column__
+## 5. __Regular expressions to extract values in the Managers Column__
 
 Using regular expressions, extract the wins and losses for the managers listed in the managers column. Do not use each season's number of wins or losses. You must extract the information from the managers column using regular expressions. That column has the information written in the form "F.LastName (82-80)". You will need to use capture groups in your regular expression to separate the different pieces of information.
 
